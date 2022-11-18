@@ -236,31 +236,31 @@ if out_freq==-1 or integ==3: # if a output time file or rk 7(8) are used enter t
 			ws=np.dot(c.T,np.array([u[9:12]]).T)# secondary ang vel in B frame
 			lwc[0]=u[6:9]# store wc
 			lws[0]=np.dot(c.T,np.array([u[9:12]]).T).T[0] # store ws in B frame
-			kt[0]=.5*m*np.dot(vel.T,vel)# trans kinetic energy
-			kr1[0]=.5*np.dot(wc.T,np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc))# primary rot kinetic energy
-			kr2[0]=.5*np.dot(ws.T,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))# secondary rot kinetic energy
-			H[0]=(m*np.cross(r,vel,axis=0)\
+			kt[0]=.5*m*np.dot(vel.T,vel)*1.0e6# trans kinetic energy in kg m² / s²
+			kr1[0]=.5*np.dot(wc.T,np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc))*1.0e6 #primary rot kinetic energy in kg m² / s²
+			kr2[0]=.5*np.dot(ws.T,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))*1.0e6 # secondary rot kinetic energy in kg m² / s²
+			H[0]=((m*np.cross(r,vel,axis=0)\
 			    +np.dot(cc,np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc))\
-			    +np.dot(cs,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))).T#ang mom
-			cLa[0]=np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc).T*(1000.**2.)#primary ang mom
-			cLb[0]=np.dot(c,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws)).T*(1000.**2.)#secondary ang mom
+			    +np.dot(cs,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))).T)*1.0e6 #ang mom in kg m² / s
+			cLa[0]=np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc).T*(1000.**2.)#primary ang mom in A
+			cLb[0]=np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws).T*(1000.**2.)#secondary ang mom in B
 			C_store[0]=np.reshape(c,[1,9])
 			Cc_store[0]=np.reshape(cc,[1,9])
 			fCc_store[0]=np.reshape(cc.T,[1,9])
 			e=np.dot(cc.T,r/la.norm(r)).T#rel pos unit vector
 			R=la.norm(r)#rel pos magnitude
 			TBp=inertia_rot(c,n,TB)# rotated secondary inertia integrals
-			U[0]=potential(G,n,tk,a,b,e,R,TA,TBp)#mutual potential
-			E[0]=U[0]+kt[0]+kr1[0]+kr2[0]#total energy
+			U[0]=potential(G,n,tk,a,b,e,R,TA,TBp)*1.0e6 #mutual potential in kg m² / s²
+			E[0]=U[0]+kt[0]+kr1[0]+kr2[0]# total energy in kg m² / s²
 			if f==0:
 				E0=np.copy(E[0])
 				H0=np.copy(H[0])
 			dE=(E0-E)/E
 			dH=(la.norm(H0)-la.norm(H))/la.norm(H0)
 
-			lstateout=np.c_[tsett,rpos,lvel,lwc,lws,C_store,Cc_store,U*(1000.**2)]# lagrangian states set
-			fhstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,fCc_store,U*(1000.**2)]# fahnestock formatted hamiltonian states set
-			hstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,Cc_store,U*(1000.**2)]# hamiltonian states set
+			lstateout=np.c_[tsett,rpos,lvel,lwc,lws,C_store,Cc_store,U]# lagrangian states set
+			fhstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,fCc_store,U]# fahnestock formatted hamiltonian states set
+			hstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,Cc_store,U]# hamiltonian states set
 			L_w.writerow(lstateout[0])
 			FH_w.writerow(fhstateout[0])
 			H_w.writerow(hstateout[0])
@@ -330,22 +330,22 @@ else:# if every time step or fixed output frequency do this post processing
 		temp1[0]=np.dot(c.T,np.array([u[9:12]]).T).T
 		lwc[0]=u[6:9]# store wc
 		lws[0]=np.dot(c.T,np.array([u[9:12]]).T).T[0] # store ang vel in B
-		kt[0]=.5*m*np.dot(vel.T,vel)# trans kinetic energy
-		kr1[0]=.5*np.dot(wc.T,np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc))#primary rot kinetic energy
-		kr2[0]=.5*np.dot(ws.T,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))# secondary rot kinetic energy
-		H[0]=(m*np.cross(r,vel,axis=0)\
+		kt[0]=.5*m*np.dot(vel.T,vel)*1.0e6# trans kinetic energy in kg m² / s²
+		kr1[0]=.5*np.dot(wc.T,np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc))*1.0e6 #primary rot kinetic energy in kg m² /s²
+		kr2[0]=.5*np.dot(ws.T,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))*1.0e6 # secondary rot kinetic energy in kg m² /s²
+		H[0]=((m*np.cross(r,vel,axis=0)\
 			+np.dot(cc,np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc))\
-			+np.dot(cs,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))).T#ang mom
+			+np.dot(cs,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws))).T)*1.0e6 #ang mom in kg m² /s
 		cLa[0]=np.dot(np.diag([Ixx_c,Iyy_c,Izz_c]),wc).T*(1000.**2.)# primary ang mom
-		cLb[0]=np.dot(c,np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws)).T*(1000.**2.)# secondary ang mom
+		cLb[0]=np.dot(np.diag([Ixx_s,Iyy_s,Izz_s]),ws).T*(1000.**2.)# secondary ang mom
 		C_store[0]=np.reshape(c,[1,9])
 		Cc_store[0]=np.reshape(cc,[1,9])
 		fCc_store[0]=np.reshape(cc.T,[1,9])
 		e=np.dot(cc.T,r/la.norm(r)).T#rel pos unit vector
 		R=la.norm(r)# rel pos magnitude
 		TBp=inertia_rot(c,n,TB)# rotated secondary inertia integrals
-		U[0]=potential(G,n,tk,a,b,e,R,TA,TBp)#mutual potential
-		E[0]=U[0]+kt[0]+kr1[0]+kr2[0]# total energy
+		U[0]=potential(G,n,tk,a,b,e,R,TA,TBp)*1.0e6 #mutual potential in kg m² / s²
+		E[0]=U[0]+kt[0]+kr1[0]+kr2[0]# total energy in kg m² / s²
 		if f==0:
 			E0=np.copy(E[0])
 			H0=np.copy(H[0])
@@ -358,9 +358,9 @@ else:# if every time step or fixed output frequency do this post processing
 			rhelio[0]=np.array([solar[0:3]])
 			vhelio[0]=np.array([solar[3:6]])
 
-		lstateout=np.c_[tsett,rpos,lvel,lwc,lws,C_store,Cc_store,U*(1000.**2)]# lagrangian states set
-		fhstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,fCc_store,U*(1000.**2)]# fahnestock formatted hamiltonian states set
-		hstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,Cc_store,U*(1000.**2)]# hamiltonian states set
+		lstateout=np.c_[tsett,rpos,lvel,lwc,lws,C_store,Cc_store,U]# lagrangian states set
+		fhstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,fCc_store,U]# fahnestock formatted hamiltonian states set
+		hstateout=np.c_[tsett,rpos,rmom,cLa,cLb,C_store,Cc_store,U]# hamiltonian states set
 		if flyby_toggle==1:
 			hyperbolicout=np.c_[rhyp,vhyp]# 3rd body state set
 		if helio_toggle==1:
